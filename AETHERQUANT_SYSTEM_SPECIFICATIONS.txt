@@ -1,0 +1,159 @@
+================================================================================
+                    A E T H E R Q U A N T   S Y S T E M
+                  T E C H N I C A L   S P E C I F I C A T I O N S
+================================================================================
+
+Aetherquant is an end-to-end quantitative deep learning time-series forecasting 
+and portfolio strategy backtesting framework. It integrates traditional statistical 
+baselines (Auto-ARIMA, Holt-Winters Exponential Smoothing) with state-of-the-art 
+PyTorch neural models (Multivariate LSTM, Multivariate GRU, Seq2Seq Bahdanau 
+Attention-LSTM, and Multi-Head Self-Attention Time-Series Transformers).
+
+The framework includes a zero-dependency Python bridge devserver and a high-fidelity 
+animated bento-grid dashboard inspired by Remix.run's sleek minimalist aesthetics.
+
+--------------------------------------------------------------------------------
+1. COMPREHENSIVE FILE STRUCTURE & MODULE ROLES
+--------------------------------------------------------------------------------
+
+Stock forecasting/
+│
+├── .gitignore                <- Excludes bytecode, node modules, build dist, 
+│                                and bulk local raw datasets.
+├── requirements.txt          <- System dependencies (PyTorch, Pandas, yfinance, 
+│                                Statsmodels, Chart.js).
+├── run_pipeline.py           <- Unified CLI orchestrator script running 
+│                                full end-to-end downloads & neural training.
+├── server.py                 <- Multi-threaded HTTP JSON REST API server and 
+│                                static file bridge serving the UI bundle.
+├── AETHERQUANT_SYSTEM_SPECIFICATIONS.txt  <- [This File] Complete system spec sheet.
+│
+├── data/
+│   ├── raw/                  <- Temporary cache folder for yfinance downloaded CSVs.
+│   └── processed/            <- Storage for engineered technical indicator datasets.
+│
+├── notebooks/
+│   ├── 01_pipeline_and_baselines.ipynb  <- Exploratory data analysis, technical indicators, 
+│   │                                       stationarity test (ADF), classical fits.
+│   └── 02_deep_learning_forecasting.ipynb  <- PyTorch DataLoader design, training loops, 
+│                                              attention maps, portfolio backtesting.
+│
+├── results/
+│   ├── metrics/              <- Performance evaluation CSV records.
+│   ├── models/               <- Saved PyTorch model checkpoint dictionaries (.pth).
+│   └── plots/                <- Standard visual PNG forecast overlays, backtest equity 
+│                                curves, and static attention maps.
+│
+├── src/
+│   ├── __init__.py
+│   ├── data_pipeline.py      <- Fetches NSE market data, checks bounds, handles local 
+│   │                            directory mapping & caching.
+│   ├── feature_engineering.py <- Pure Pandas implementations of RSI, MACD, Bollinger 
+│   │                             Bands, rolling stats, lookback lags, stationarity.
+│   ├── evaluation.py         <- Quantitative backtest simulation engine (calculates 
+│   │                            annual returns, Sharpe ratios, drawdowns, win rates).
+│   ├── utils.py              <- Console logger, plot styling overrides, and attention 
+│   │                            weight inspector wrappers.
+│   └── models/
+│       ├── __init__.py
+│       ├── baselines.py      <- Wraps ARIMA (AIC/BIC search grid) and Exponential 
+│       │                        Smoothing wrappers.
+│       ├── lstm_gru.py       <- PyTorch recurrent sequence loops (LSTM and GRU layers).
+│       ├── attention.py      <- Gated encoder-decoder network utilizing custom 
+│       │                        Bahdanau temporal attention weights scoring.
+│       └── transformer.py    <- Time-Series Transformer using positional encoding, 
+│                                query-key-value embeddings, multi-head attention.
+│
+└── dashboard/
+    ├── index.html            <- Heavyweight bento-grid skeleton and Hero section.
+    ├── package.json          <- Node scripting for Vite compiler.
+    ├── package-lock.json
+    ├── dist/                 <- Production-compiled static HTML/CSS/JS assets.
+    └── src/
+        ├── main.js           <- State engine managing REST sync, particle canvas loops, 
+        │                        Chart.js instances, and dynamic attention weight grids.
+        └── style.css         <- Sleek, high-contrast, pitch-black typography system, 
+                                 Bento panel structures, and glassmorphic inputs.
+
+
+--------------------------------------------------------------------------------
+2. QUANTITATIVE FORECASTING & DEEP LEARNING MODEL DESIGN
+--------------------------------------------------------------------------------
+
+A. Classical Statistical Benchmarks
+   * Auto-ARIMA: Fits an Auto-Regressive Integrated Moving Average model by 
+     performing a grid search over parameters (p, d, q) utilizing the Akaike 
+     Information Criterion (AIC) to capture linear historical trends.
+   * Exponential Smoothing (Holt-Winters): Applies triple exponential 
+     smoothing with an additive trend, damped trend parameters, and additive 
+     seasonality to model linear local trends and seasonal cycles.
+
+B. Deep Learning Architectures (PyTorch-based)
+   * Multivariate LSTM: Combines past close prices with engineered technical 
+     indicators (RSI, MACD, etc.). The recurrent cell tracks input, output, 
+     and forget gates to retain long-term momentum patterns across lookback 
+     sequence windows (e.g. t-20 to t-1).
+   * Multivariate GRU: A simplified version of LSTM using update and reset 
+     gates. Provides faster backpropagation and training loops with comparable 
+     predictive capacity on medium-frequency assets.
+   * Bahdanau Temporal Attention-LSTM: Implements a Sequence-to-Sequence (Seq2Seq) 
+     encoder-decoder format. A mathematical attention scoring alignment layer 
+     computes weight vectors across the lookback sequence. The decoder focuses 
+     heavy parameters on high-predictive Timestep lags (like t-1, t-2, t-5) 
+     to forecast tomorrow's close price.
+   * Multi-Horizon Time-Series Transformer: Employs Query-Key-Value (QKV) projection 
+     weights. Monospace sequence numbers are converted to temporal embeddings 
+     via Positional Encoding, allowing the network to capture complex, non-linear, 
+     long-range relationships without recurrent sequencing constraints.
+
+
+--------------------------------------------------------------------------------
+3. REST BRIDGE BACKEND SERVER APIS (server.py)
+--------------------------------------------------------------------------------
+
+The Python `server.py` devserver serves standard assets from `dashboard/dist` or 
+`dashboard/src` fallbacks. It also exposes standard JSON endpoints on Port 8000:
+
+  * GET  /api/tickers
+    Returns lists of available (compiled results) and supported NSE tickers 
+    (RELIANCE, TCS, INFY, HDFCBANK).
+    
+  * GET  /api/status
+    Streams current PyTorch subprocess execution status: idle, running, or failed. 
+    Includes epoch tracking percentage and the last 150 terminal output lines.
+    
+  * GET  /api/results?ticker={TICKER}
+    Serves MAE, RMSE, MAPE, R2 index, and Cumulative Return scores. Supports 
+    dynamic scaling factors and fallbacks if files are not yet created on disk.
+    
+  * GET  /api/chart-data?ticker={TICKER}
+    Exposes date-aligned actual price paths, forecast overlays for all 6 models, 
+    and strategy cumulative wealth curve matrices.
+    
+  * GET  /api/indicators?ticker={TICKER}
+    Serves Close prices, Bollinger Bands (Upper, Lower, SMA_20), EMA_12, EMA_26, 
+    MACD, MACD Signal, and RSI oscillators.
+    
+  * POST /api/run
+    Accepts JSON payloads (ticker, lookback, horizon, epochs, batch_size, lr, 
+    force_fetch). Spawns a background Thread/Subprocess executing `run_pipeline.py` 
+    to compile fresh forecasts without blocking the Web Server.
+
+
+--------------------------------------------------------------------------------
+4. ANIMATED BENTO-GRID UI/UX SYSTEM
+--------------------------------------------------------------------------------
+
+  * Pitch-Black Visual Language: A sleek `#000000` base featuring harmonic HSL 
+    neon borders, glowing text drop shadows, and minimalist code pills.
+  * Kinetic Neural Background: A fixed HTML5 Canvas running a high-frame particle 
+    system that dynamically bounces nodes and repels from the user's cursor.
+  * Asymmetric Bento-Grid Layout: Fully responsive 12-column bento panels 
+    equipped with glassmorphic cards (`backdrop-filter: blur(10px)`) that float 
+    up via staggered CSS fadeInUp animation delays on page startup.
+  * Interactive Attention Inspector: Renders the Bahdanau Seq2Seq temporal 
+    weights dynamically as vertical columns. Hovering over a timestep column 
+    (e.g., t-5) shows the attention percentage bar and a detailed predictive 
+    relevance description in real-time.
+  * Dynamic Ticker Dropdowns: High-contrast styled selector pills (`#0c0d12`) 
+    fully adapted to prevent white-on-white dropdown rendering glitches on Edge/Chrome.

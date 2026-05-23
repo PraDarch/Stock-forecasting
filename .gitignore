@@ -1,0 +1,74 @@
+# ==========================================================================
+# AETHERQUANT SYSTEM GITIGNORE
+# ==========================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+bin/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+.env/
+ENV/
+env.bak/
+venv.bak/
+
+# Project caches and logs
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.vscode/
+.idea/
+pipeline.log
+run_pipeline.log
+*.log
+
+# Front-end Node / Vite modules
+node_modules/
+dashboard/node_modules/
+dashboard/dist/
+.vite/
+
+# Quantitative Data / Checkpoints (Keep structure, ignore raw bulk files)
+data/raw/*.csv
+data/processed/*.csv
+results/models/*.pth
+results/plots/*.png
+results/metrics/*.csv
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!results/models/.gitkeep
+!results/plots/.gitkeep
+!results/metrics/.gitkeep

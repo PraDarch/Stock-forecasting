@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AETHERQUANT // Deep Learning Stock Forecasting & Financial Backtester</title>
+  <!-- Modern Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Chart.js and Custom Stylings -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+
+  <!-- Kinetic Neural Particle Background -->
+  <canvas id="neural-canvas"></canvas>
+
+  <div class="app-container">
+    
+    <!-- Premium Cyberpunk Navbar -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="pulse-ring active"></div>
+        <span class="logo-glow">AETHERQUANT</span>
+        <span class="logo-divider">/</span>
+        <span class="logo-subtitle">NEURAL TRADING RADAR</span>
+      </div>
+      <div class="market-ticker-tape">
+        <div class="ticker-item"><span class="ticker-label">RELIANCE</span><span class="ticker-val up">₹2,485.40 (+1.2%)</span></div>
+        <div class="ticker-item"><span class="ticker-label">TCS</span><span class="ticker-val down">₹3,912.10 (-0.4%)</span></div>
+        <div class="ticker-item"><span class="ticker-label">INFY</span><span class="ticker-val up">₹1,442.80 (+0.8%)</span></div>
+        <div class="ticker-item"><span class="ticker-label">NIFTY 50</span><span class="ticker-val up">22,185.30 (+0.6%)</span></div>
+      </div>
+      <div class="connection-status">
+        <span class="status-dot green"></span>
+        <span class="status-text" id="backend-status-text">SYSTEM ONLINE</span>
+      </div>
+    </header>
+
+    <!-- Remix-style Massive Hero Section -->
+    <section class="hero-section scroll-anim" style="--order: 1;">
+      <p class="hero-tag">Next-Gen Quantitative Framework</p>
+      <h1 class="hero-title">A neural forecasting framework for predicting anything</h1>
+      <p class="hero-subtitle">
+        Aetherquant gives you the power and tools to model sequential market databases. Train deep PyTorch recurrent sequence loops (<code class="code-pill">LSTM</code> and <code class="code-pill">GRU</code>), temporal self-attentive matrices (<code class="code-pill">Attention</code>), and multivariate time-series <code class="code-pill">Transformers</code> inside one unified stack.
+      </p>
+    </section>
+
+    <!-- Main Bento Grid Workspace -->
+    <main class="bento-grid">
+      
+      <!-- Panel A: Model Configuration Lab -->
+      <section class="bento-panel span-4 config-panel scroll-anim" style="--order: 2;">
+        <p class="bento-tag">Hyperparameter Laboratory</p>
+        <h2 class="bento-title">Configuration Console</h2>
+        
+        <form id="pipeline-form" class="control-form">
+          <div class="form-group">
+            <label for="ticker-select">Target Asset (NSE Ticker)</label>
+            <select id="ticker-select" class="form-select pill-input">
+              <option value="RELIANCE" selected>RELIANCE.NS (Reliance Industries)</option>
+              <option value="TCS">TCS.NS (Tata Consultancy Services)</option>
+              <option value="INFY">INFY.NS (Infosys Limited)</option>
+              <option value="HDFCBANK">HDFCBANK.NS (HDFC Bank Ltd)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="lookback-slider">Lookback Sequence Window</label>
+              <span class="badge-value" id="lookback-val">20d</span>
+            </div>
+            <input type="range" id="lookback-slider" min="10" max="60" value="20" class="form-slider">
+            <div class="slider-labels">
+              <span>10d</span>
+              <span>30d</span>
+              <span>60d</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="horizon-slider">Forecast Horizon</label>
+              <span class="badge-value" id="horizon-val">1d</span>
+            </div>
+            <input type="range" id="horizon-slider" min="1" max="5" value="1" class="form-slider">
+            <div class="slider-labels">
+              <span>1d (Tomorrow)</span>
+              <span>3d</span>
+              <span>5d (Week)</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="epochs-slider">Neural Epochs</label>
+              <span class="badge-value" id="epochs-val">15</span>
+            </div>
+            <input type="range" id="epochs-slider" min="5" max="100" value="15" class="form-slider">
+            <div class="slider-labels">
+              <span>5</span>
+              <span>50</span>
+              <span>100</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="lr-input">Learning Rate</label>
+              <input type="number" id="lr-input" value="0.001" step="0.0001" class="form-input pill-input">
+            </div>
+            <div class="form-group half">
+              <label for="batch-input">Batch Size</label>
+              <select id="batch-input" class="form-select pill-input">
+                <option value="16">16</option>
+                <option value="32" selected>32</option>
+                <option value="64">64</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="checkbox-group">
+            <input type="checkbox" id="force-fetch" class="form-checkbox">
+            <label for="force-fetch">Bypass Cache (Force fetch)</label>
+          </div>
+
+          <button type="submit" id="submit-btn" class="glow-button pill-button">
+            <span class="btn-shine"></span>
+            <span class="btn-text">Execute Quantitative Pipeline</span>
+            <div class="btn-loader hidden">
+              <div class="spinner"></div>
+            </div>
+          </button>
+        </form>
+      </section>
+
+      <!-- Panel B: Deep Learning Champion -->
+      <section class="bento-panel span-4 champion-panel scroll-anim" style="--order: 3;">
+        <p class="bento-tag">Deep Learning Champion</p>
+        <h2 class="bento-title" id="champion-model-name">Time-Series Transformer</h2>
+        
+        <div class="champion-stats-container">
+          <div class="champ-trophy">
+            <span class="glow-halo"></span>
+            <svg class="trophy-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M18 2H16V4H18C18.55 4 19 4.45 19 5V7C19 8.11 18.11 9 17 9H15C15 10.9 13.7 12.5 12 12.9V15H15V17H13V22H11V17H9V15H12V12.9C10.3 12.5 9 10.9 9 9H7C5.9 9 5 8.11 5 7V5C5 4.45 5.45 4 6 4H8V2H6C4.9 2 4 2.9 4 4V7C4 8.78 5.21 10.28 6.85 10.73C7.45 12.18 8.7 13.25 10.2 13.44C10.23 13.44 10.27 13.44 10.3 13.45V15H9V17H7C5.9 17 5 17.9 5 19V22H19V19C19 17.9 18.1 17 17 17H15V15H13.7C13.73 15 13.77 15 13.8 15C15.3 14.81 16.55 13.74 17.15 12.29C18.79 11.84 20 10.34 20 8.56V4C20 2.9 19.1 2 18 2M6 6H8V8H6V6M18 8H16V6H18V8Z" /></svg>
+          </div>
+          <div class="champ-stats-row">
+            <div class="champ-stat-box"><span class="val text-green" id="champ-r2">0.7938</span><span class="lbl">R² Index</span></div>
+            <div class="champ-stat-box"><span class="val" id="champ-mae">35.53</span><span class="lbl">MAE Error</span></div>
+            <div class="champ-stat-box"><span class="val text-cyan" id="champ-sharpe">0.56</span><span class="lbl">Sharpe Ratio</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel C: Futuristic Subprocess Training Shell -->
+      <section class="bento-panel span-4 console-panel scroll-anim" style="--order: 4;">
+        <p class="bento-tag">Subprocess Compiler Sockets</p>
+        <h2 class="bento-title">Training Console Shell</h2>
+        
+        <!-- Pulse Progress Ring during Active Runs -->
+        <div id="training-progress-container" class="training-progress hidden">
+          <div class="progress-ring-wrapper">
+            <svg class="progress-ring" width="100" height="100">
+              <circle class="progress-ring-bg" stroke="rgba(255, 255, 255, 0.05)" stroke-width="5" fill="transparent" r="42" cx="50" cy="50" />
+              <circle id="progress-bar-circle" class="progress-ring-fg" stroke="var(--neon-cyan)" stroke-width="5" stroke-dasharray="263.89" stroke-dashoffset="263.89" stroke-linecap="round" fill="transparent" r="42" cx="50" cy="50" />
+            </svg>
+            <div class="progress-label">
+              <span class="pct" id="progress-pct">0%</span>
+              <span class="txt">TRAINING</span>
+            </div>
+          </div>
+          <div class="progress-details">
+            <div class="detail-row"><span class="dlbl">Active Epoch</span><span class="dval" id="active-epoch">0 / 0</span></div>
+            <div class="detail-row"><span class="dlbl">Step Status</span><span class="dval text-glow" id="step-status">Initializing weights...</span></div>
+          </div>
+        </div>
+
+        <div class="terminal-panel">
+          <div class="terminal-header">
+            <div class="window-dot red"></div>
+            <div class="window-dot yellow"></div>
+            <div class="window-dot green"></div>
+            <span class="terminal-title">bash - run_pipeline.log</span>
+            <button id="clear-console-btn" class="terminal-clear">Clear</button>
+          </div>
+          <div class="terminal-body" id="console-stream">
+            <div class="console-line system">[System] Terminal initialized. Select target metrics to compile.</div>
+            <div class="console-line system">[System] Baseline calculations loaded for RELIANCE.NS. Ready.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel D: Quantitative Forecast & Backtest Workspace -->
+      <section class="bento-panel span-8 workspace-panel scroll-anim" style="--order: 5;">
+        <p class="bento-tag">Analytical Workspace</p>
+        <h2 class="bento-title">Forecasting & Simulation Center</h2>
+        
+        <!-- Tabbed Workspace Navigator -->
+        <div class="workspace-tabs">
+          <button class="tab-btn active" data-tab="forecasts-tab">
+            <span class="tab-label">Forecast Crossovers</span>
+          </button>
+          <button class="tab-btn" data-tab="backtests-tab">
+            <span class="tab-label">Cumulative Backtests</span>
+          </button>
+          <button class="tab-btn" data-tab="indicators-tab">
+            <span class="tab-label">Technical indicator Lab</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Forecast Explorer -->
+        <div class="tab-content active" id="forecasts-tab">
+          <div class="tab-grid">
+            <div class="chart-container">
+              <canvas id="forecastChart"></canvas>
+            </div>
+            
+            <div class="chart-legend-overlay">
+              <h4>Forecast Overlays</h4>
+              <div class="legend-list">
+                <div class="legend-item"><input type="checkbox" id="chk-actual" checked disabled><span class="col-indicator actual"></span><span class="label">Actual Price</span></div>
+                <div class="legend-item"><input type="checkbox" class="model-toggle" data-model="ARIMA" checked><span class="col-indicator arima"></span><span class="label">ARIMA</span></div>
+                <div class="legend-item"><input type="checkbox" class="model-toggle" data-model="Exp Smoothing" checked><span class="col-indicator expsmoothing"></span><span class="label">Exp Smooth</span></div>
+                <div class="legend-item"><input type="checkbox" class="model-toggle" data-model="LSTM" checked><span class="col-indicator lstm"></span><span class="label">LSTM RNN</span></div>
+                <div class="legend-item"><input type="checkbox" class="model-toggle" data-model="GRU" checked><span class="col-indicator gru"></span><span class="label">GRU RNN</span></div>
+                <div class="legend-item"><input type="checkbox" class="model-toggle" data-model="Attention-LSTM" checked><span class="col-indicator attn"></span><span class="label">Attn LSTM</span></div>
+                <div class="legend-item"><input type="checkbox" class="model-toggle" data-model="Transformer" checked><span class="col-indicator transformer"></span><span class="label">Transformer</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Strategy Backtester -->
+        <div class="tab-content" id="backtests-tab">
+          <div class="tab-grid">
+            <div class="chart-container">
+              <canvas id="backtestChart"></canvas>
+            </div>
+            
+            <div class="backtest-summary-card">
+              <h4>Simulation Settings</h4>
+              <div class="strat-metric-row">
+                <span class="slbl">Initial Capital</span>
+                <span class="sval">₹1,00,000.00</span>
+              </div>
+              <div class="strat-metric-row">
+                <span class="slbl">Strategy</span>
+                <span class="sval text-cyan">Long-Only Signals</span>
+              </div>
+              <hr class="panel-hr">
+              <h4>Backtest Rankings</h4>
+              <div class="ranking-list" id="portfolio-ranking-list">
+                <!-- Sorted portfolio performance populated dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Technical Indicator Lab -->
+        <div class="tab-content" id="indicators-tab">
+          <div class="indicators-dashboard">
+            <div class="indicator-sub-chart">
+              <div class="chart-container header-chart">
+                <canvas id="indicatorsChart"></canvas>
+              </div>
+            </div>
+            
+            <div class="indicator-controls-card">
+              <h4>Indicators</h4>
+              <div class="ind-checklist">
+                <label class="ind-check-lbl"><input type="radio" name="tech-ind" value="bollinger" checked><span>Bollinger Bands (20, 2σ)</span></label>
+                <label class="ind-check-lbl"><input type="radio" name="tech-ind" value="macd"><span>MACD Crossover (12, 26, 9)</span></label>
+                <label class="ind-check-lbl"><input type="radio" name="tech-ind" value="rsi"><span>RSI Oscillator (14d)</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Panel E: Technical Dial Lab -->
+      <section class="bento-panel span-4 tech-gauge-panel scroll-anim" style="--order: 6;">
+        <p class="bento-tag">Momentum Gauges</p>
+        <h2 class="bento-title">Oscillator Analytics</h2>
+        
+        <div class="gauge-pane">
+          <div class="gauge-dial-container">
+            <div class="gauge-dial" id="rsi-dial" style="--rotation: 90deg;"></div>
+            <div class="gauge-center-val" id="rsi-gauge-val">50.0</div>
+          </div>
+          <div class="gauge-text-status" id="indicator-status-summary">NEUTRAL STABILITY</div>
+        </div>
+      </section>
+
+      <!-- Panel F: Bahdanau Self-Attention Grid Explorer -->
+      <section class="bento-panel span-12 attention-matrix-panel scroll-anim" style="--order: 7;">
+        <p class="bento-tag">Bahdanau Self-Attention Temporal Grid</p>
+        <h2 class="bento-title">Dynamic Alignment Score Maps</h2>
+        
+        <div class="attention-matrix-layout">
+          <div class="attention-grid-container" id="attention-matrix-grid">
+            <!-- 2D matrix blocks generated by JavaScript -->
+          </div>
+          
+          <div class="attention-inspector">
+            <h4>Attention Inspector</h4>
+            <div class="inspector-card" id="inspector-card">
+              <div class="insp-row"><span class="ilbl">Focused Day:</span><span class="ival text-cyan" id="insp-day">t-1 (Yesterday)</span></div>
+              <div class="insp-row"><span class="ilbl">Weight Level:</span><span class="ival text-green" id="insp-weight">0.2450</span></div>
+              <div class="insp-bar"><div class="insp-bar-fill" id="insp-bar-fill" style="width: 24.5%;"></div></div>
+              <p class="insp-desc" id="insp-desc">This timestep has extremely high predictive impact. Recurrent sequences are preserving short-term momentum parameters heavily for tomorrow's Close estimate.</p>
+            </div>
+            <div class="matrix-legend">
+              <span class="legend-lbl">Attention Intensity:</span>
+              <div class="legend-scale">
+                <span class="scale-box v0"></span>
+                <span class="scale-box v1"></span>
+                <span class="scale-box v2"></span>
+                <span class="scale-box v3"></span>
+                <span class="scale-box v4"></span>
+              </div>
+              <div class="scale-labels"><span>Min</span><span>Max</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel G: Model Leaderboard -->
+      <section class="bento-panel span-12 leaderboard-panel scroll-anim" style="--order: 8;">
+        <p class="bento-tag">Historical Performance Matrices</p>
+        <h2 class="bento-title">Forecasting & Backtesting Comparison Leaderboard</h2>
+
+        <div class="leaderboard-table-wrapper">
+          <table class="leaderboard-table" id="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Predictive Model</th>
+                <th>MAE (INR)</th>
+                <th>RMSE (INR)</th>
+                <th>MAPE (%)</th>
+                <th>R² Index</th>
+                <th>Directional Accuracy (%)</th>
+                <th>Sharpe Ratio</th>
+                <th>Max Drawdown</th>
+                <th>Total Return</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-tbody">
+              <!-- Dynamically rendered rows sorted by R2 index -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Premium Animated Footer -->
+    <footer class="app-footer">
+      <p>© 2026 AETHERQUANT Predictive Analytics. Built with PyTorch Multi-Head Self-Attention Transformers & Bahdanau Seq2Seq Layers.</p>
+      <div class="footer-links">
+        <span class="footer-badge">Python 3.13</span>
+        <span class="footer-badge">PyTorch 2.3</span>
+        <span class="footer-badge">Vite + Vanilla ESM</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Client-side State and Scripts Router -->
+  <script type="module" src="./src/main.js"></script>
+
+</body>
+</html>
