@@ -1105,9 +1105,45 @@ function setupScrollIntersectionObserver() {
         entry.target.classList.add("animated");
       }
     });
-  }, { threshold: 0.1 });
+  }, { threshold: 0.05 });
 
   elements.forEach((el) => observer.observe(el));
+}
+
+/* Mouse-tracking glow cursor variables updater */
+function setupBentoHoverGlow() {
+  const panels = document.querySelectorAll(".bento-panel");
+  panels.forEach((p) => {
+    p.addEventListener("mousemove", (e) => {
+      const rect = p.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      p.style.setProperty("--mouse-x", `${x}px`);
+      p.style.setProperty("--mouse-y", `${y}px`);
+    });
+    p.addEventListener("mouseleave", () => {
+      p.style.removeProperty("--mouse-x");
+      p.style.removeProperty("--mouse-y");
+    });
+  });
+}
+
+/* Cinematically staggered hero header word-by-word reveal splitting */
+function setupHeroTextAnimation() {
+  const title = document.querySelector(".hero-title");
+  if (!title) return;
+  
+  const text = title.innerText;
+  title.innerHTML = "";
+  
+  const words = text.split(" ");
+  words.forEach((w, idx) => {
+    const span = document.createElement("span");
+    span.className = "hero-word-anim";
+    span.innerText = w + " ";
+    span.style.animationDelay = `${0.05 + idx * 0.05}s`;
+    title.appendChild(span);
+  });
 }
 
 async function verifyBackendConnection() {
@@ -1134,10 +1170,12 @@ async function verifyBackendConnection() {
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
+  setupHeroTextAnimation();
   initParticles();
   setupTabNavigation();
   setupControlInputs();
   setupScrollIntersectionObserver();
+  setupBentoHoverGlow();
   
   verifyBackendConnection().then(() => {
     // Initial Load default stock RELIANCE
